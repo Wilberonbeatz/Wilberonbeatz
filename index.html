@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Music Library{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md mb-8">
+    <h1 class="text-4xl font-extrabold text-gray-900 text-center mb-6">Your Music Collection</h1>
+
+    <!-- Search Bar -->
+    <form action="{{ url_for('index') }}" method="GET" class="mb-8 flex flex-col sm:flex-row gap-4">
+        <input type="text" name="q" placeholder="Search by title or artist..." 
+               value="{{ search_query }}" 
+               class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+        <button type="submit" 
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+            Search
+        </button>
+    </form>
+
+    {% if songs %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for song in songs %}
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ song.title }}</h2>
+                        <p class="text-gray-600 text-lg mb-4">Artist: <span class="font-medium">{{ song.artist }}</span></p>
+                    </div>
+                    <div class="mt-auto">
+                        <audio controls preload="metadata" class="w-full mb-4 rounded-lg">
+                            <source src="{{ url_for('play_music', filename=song.filename) }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <a href="{{ url_for('download_music', filename=song.filename) }}" 
+                           download="{{ song.title }} - {{ song.artist }}.{{ song.filename.split('.')[-1] }}"
+                           class="block text-center bg-purple-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-300 shadow-md">
+                            Download Song
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-gray-500 text-xl py-10">
+            {% if search_query %}
+                No music found matching "{{ search_query }}".
+            {% else %}
+                No music uploaded yet. Be the first to <a href="{{ url_for('upload_music') }}" class="text-blue-600 hover:underline">upload yours</a>!
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
